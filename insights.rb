@@ -1,5 +1,5 @@
-require 'HTTParty'
-require 'certified'
+require 'httparty'
+
 require 'pp'
 
 class FacebookInsights
@@ -31,6 +31,16 @@ class FacebookInsights
 			word_counter(post['message'].to_s)
 		end
 		frequency_printer("#{uid}frecuencia.txt")
+	end
+
+	def post_comments(post_id)
+		@word_list = {}
+		res = self.class.get("/#{post_id}/comments?fields=message&limit=250", @options)
+		comments = res['data']
+		comments.each do |comment|
+			word_counter(comment['message'].to_s)
+		end
+		frequency_printer("#{post_id}frecuencia.txt")
 	end
 
 	def date_converter(date)
