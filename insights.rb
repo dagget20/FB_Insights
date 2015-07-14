@@ -12,6 +12,7 @@ class FacebookInsights
 		@options = {query: { access_token: token, limit: 250}}
 	end
 
+	##GET COMPETITORS FANS
 	def competitor_fans(comp_id, since_d, until_d)
 		since_date ||= date_converter(since_d)
 		until_date ||= date_converter(until_d)
@@ -23,6 +24,7 @@ class FacebookInsights
 		end
 	end
 
+	##GET 250 COMMENTS FROM A FAN PAGE
 	def affinity_posts(uid)
 		@word_list = {}
 		res = self.class.get("/#{uid}/posts?fields=likes.limit(0),comments.limit(0),message&limit=250", @options)
@@ -33,7 +35,9 @@ class FacebookInsights
 		frequency_printer("#{uid}frecuencia.txt")
 	end
 
-	def post_comments(post_id)
+
+	##GET AND PRINT 250 COMMENTS 
+	def post_comments_freq(post_id)
 		@word_list = {}
 		res = self.class.get("/#{post_id}/comments?fields=message&limit=250", @options)
 		comments = res['data']
@@ -42,6 +46,15 @@ class FacebookInsights
 		end
 		frequency_printer("#{post_id}frecuencia.txt")
 	end
+
+	def post_comments(post_id)
+		res = self.class.get("/#{post_id}/comments?fields=message&limit=250", @options)
+		comments = res['data']
+		comments.each do |comment|
+			printer("#{post_id}frecuencia.txt",comment['message'].gsub("\n","\s"))
+		end
+	end
+
 
 	def date_converter(date)
 		n_date = date.split("-").map {|x| x.to_i}
@@ -88,6 +101,12 @@ class FacebookInsights
 			@word_list.keys.each do |w|
 				f << w + " " + @word_list[w].to_s + "\n"
 			end
+		}
+	end
+
+	def printer(filename, printing_obj)
+		File.open(filename,'a'){|f|
+			f << printing_obj + "\n"
 		}
 	end
 end
